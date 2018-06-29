@@ -9,14 +9,14 @@ import gym_maze
 
 class Agent:
     def __init__(self,
-                 learning_rate=0.8,
-                 environment='maze-sample-10x10-v0',
+                 learning_rate=0.05,
+                 environment='maze-sample-100x100-v0',
                  lambda_factor=0.5,
                  learning_decay=0.02,
                  discount_factor=0.99,
                  epsilon=1,
-                 epsilon_decay=0.05,
-                 max_episode=200,
+                 epsilon_decay=0.02,
+                 max_episode=500,
                  max_step=1000):
         self.learning_rate = learning_rate
         self.environment = environment
@@ -106,7 +106,9 @@ class Agent:
                     print("Episode %d timed out at %d with total reward = %f."
                           % (episode, step, total_reward))
                     total_step.append(step)
-            self.update_explore_rate(episode)
-            self.update_learning_rate(episode)
+            #self.update_explore_rate(episode)
+            #self.update_learning_rate(episode)
             total_reward_record.append(total_reward)
+            if self.epsilon>0.1:
+                self.epsilon-=self.epsilon_decay
         return total_reward_record,total_step

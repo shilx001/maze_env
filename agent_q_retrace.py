@@ -27,7 +27,7 @@ class Agent:
         self.epsilon_decay = epsilon_decay
         self.max_episode = max_episode
         self.max_step = max_step
-
+        self.sigma = 0.5
         self.env = gym.make(self.environment)
         self.MAZE_SIZE = tuple(
             (self.env.observation_space.high + np.ones(self.env.observation_space.shape)).astype(int))
@@ -74,7 +74,7 @@ class Agent:
     def learn(self):  # learn a policy based on the paramters
         # 要返回点东西:返回total_reward
         total_reward_record = []
-        total_step=[]
+        total_step = []
         for episode in range(self.max_episode):
             obv = self.env.reset()
             state_0 = self.state_to_bucket(obv)
@@ -98,7 +98,10 @@ class Agent:
                 if action_ == best_action:
                     self.eligibility_traces *= self.lambda_factor * self.discount_factor
                 else:
-                    self.eligibility_traces = np.zeros(self.NUM_BUCKETS + (self.NUM_ACTIONS,), dtype=float)
+                    self.eligibility_traces *= self.sigma * self.lambda_factor * self.discount_factor
+
+                # 如何改成我们的算法？
+
 
                 # Setting up for the next iteration
                 state_0 = state
@@ -112,9 +115,10 @@ class Agent:
                     print("Episode %d timed out at %d with total reward = %f."
                           % (episode, step, total_reward))
                     total_step.append(step)
-            #self.update_explore_rate(episode)
-            #self.update_learning_rate(episode)
+            # self.update_explore_rate(episode)
+            # self.update_learning_rate(episode)
             total_reward_record.append(total_reward)
-            if self.epsilon>0.1:
-                self.epsilon-=self.epsilon_decay
-        return total_reward_record,total_step
+            if self.epsilon > 0.1:
+                self.epsilon -= self.epsilon_decay
+                # self.sigma *= 0.99
+        return total_reward_record, total_step
